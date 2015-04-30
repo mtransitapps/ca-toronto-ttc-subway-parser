@@ -192,6 +192,8 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final Pattern SUBWAY = Pattern.compile("(^|\\s){1}(subway)($|\\s){1}", Pattern.CASE_INSENSITIVE);
 	private static final String SUBWAY_REPLACEMENT = " ";
 
+	private static final String DASH = "-";
+
 	@Override
 	public String cleanStopName(String gStopName) {
 		gStopName = gStopName.toLowerCase(Locale.ENGLISH);
@@ -199,6 +201,9 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		gStopName = PLATFORM.matcher(gStopName).replaceAll(PLATFORM_REPLACEMENT);
 		gStopName = STATION.matcher(gStopName).replaceAll(STATION_REPLACEMENT);
 		gStopName = SUBWAY.matcher(gStopName).replaceAll(SUBWAY_REPLACEMENT);
+		if (gStopName.trim().endsWith(DASH)) {
+			gStopName = gStopName.substring(0, gStopName.trim().length() - 1);
+		}
 		gStopName = MSpec.cleanNumbers(gStopName);
 		return MSpec.cleanLabel(gStopName);
 	}
