@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
@@ -192,18 +193,30 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final Pattern SUBWAY = Pattern.compile("(^|\\s){1}(subway)($|\\s){1}", Pattern.CASE_INSENSITIVE);
 	private static final String SUBWAY_REPLACEMENT = " ";
 
+	private static final Pattern BOUND = Pattern.compile("(^|\\s){1}(eastbound|westbound|northbound|southbound)($|\\s){1}", Pattern.CASE_INSENSITIVE);
+	private static final String BOUND_REPLACEMENT = " ";
+
+	private static final Pattern CENTER = Pattern.compile("(cent(er|re))", Pattern.CASE_INSENSITIVE);
+	private static final String CENTER_REPLACEMENT = "Ctr";
+
 	private static final String DASH = "-";
+
+	private static final Pattern TOWARDS = Pattern.compile("(- towards .*)", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public String cleanStopName(String gStopName) {
 		gStopName = gStopName.toLowerCase(Locale.ENGLISH);
 		gStopName = AT.matcher(gStopName).replaceAll(AT_REPLACEMENT);
+		gStopName = BOUND.matcher(gStopName).replaceAll(BOUND_REPLACEMENT);
+		gStopName = CENTER.matcher(gStopName).replaceAll(CENTER_REPLACEMENT);
 		gStopName = PLATFORM.matcher(gStopName).replaceAll(PLATFORM_REPLACEMENT);
 		gStopName = STATION.matcher(gStopName).replaceAll(STATION_REPLACEMENT);
 		gStopName = SUBWAY.matcher(gStopName).replaceAll(SUBWAY_REPLACEMENT);
+		gStopName = TOWARDS.matcher(gStopName).replaceAll(StringUtils.EMPTY);
 		if (gStopName.trim().endsWith(DASH)) {
 			gStopName = gStopName.substring(0, gStopName.trim().length() - 1);
 		}
+		gStopName = MSpec.cleanStreetTypes(gStopName);
 		gStopName = MSpec.cleanNumbers(gStopName);
 		return MSpec.cleanLabel(gStopName);
 	}
