@@ -129,7 +129,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final String SHEPPARD_YONGE = "Sheppard-Yonge";
 	private static final String DON_MILLS = "Don Mills";
 	private static final String KIPLING = "Kipling";
-	private static final String UNION = "Union";
+	private static final String UNION = "Finch";
 	private static final String DOWNSVIEW = "Downsview";
 	private static final String MC_COWAN = "McCowan";
 	private static final String KENNEDY = "Kennedy";
@@ -141,7 +141,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString(DOWNSVIEW, 0);
 				return;
 			} else if (gTrip.direction_id == 1) {
-				mTrip.setHeadsignString(UNION, 1);
+				mTrip.setHeadsignString(FINCH, 1);
 				return;
 			}
 		} else if (route.id == 2l) {
