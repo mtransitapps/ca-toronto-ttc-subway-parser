@@ -129,7 +129,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final String SHEPPARD_YONGE = "Sheppard-Yonge";
 	private static final String DON_MILLS = "Don Mills";
 	private static final String KIPLING = "Kipling";
-	private static final String UNION = "Finch";
+	private static final String FINCH = "Finch";
 	private static final String DOWNSVIEW = "Downsview";
 	private static final String MC_COWAN = "McCowan";
 	private static final String KENNEDY = "Kennedy";
