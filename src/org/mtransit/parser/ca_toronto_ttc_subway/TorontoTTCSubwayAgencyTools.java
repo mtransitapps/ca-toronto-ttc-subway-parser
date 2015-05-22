@@ -10,6 +10,7 @@ import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
+import org.mtransit.parser.gtfs.data.GSpec;
 import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.mt.data.MAgency;
 import org.mtransit.parser.mt.data.MRoute;
@@ -135,8 +136,8 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final String KENNEDY = "Kennedy";
 
 	@Override
-	public void setTripHeadsign(MRoute route, MTrip mTrip, GTrip gTrip) {
-		if (route.id == 1l) {
+	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
+		if (mRoute.id == 1l) {
 			if (gTrip.direction_id == 0) {
 				mTrip.setHeadsignString(DOWNSVIEW, 0);
 				return;
@@ -144,7 +145,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString(FINCH, 1);
 				return;
 			}
-		} else if (route.id == 2l) {
+		} else if (mRoute.id == 2l) {
 			if (gTrip.direction_id == 0) {
 				mTrip.setHeadsignString(KENNEDY, 0);
 				return;
@@ -152,7 +153,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString(KIPLING, 1);
 				return;
 			}
-		} else if (route.id == 3l) {
+		} else if (mRoute.id == 3l) {
 			if (gTrip.direction_id == 0) {
 				mTrip.setHeadsignString(KENNEDY, 0);
 				return;
@@ -160,7 +161,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 				mTrip.setHeadsignString(MC_COWAN, 1);
 				return;
 			}
-		} else if (route.id == 4l) {
+		} else if (mRoute.id == 4l) {
 			if (gTrip.direction_id == 0) {
 				mTrip.setHeadsignString(DON_MILLS, 0);
 				return;
@@ -169,9 +170,6 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 				return;
 			}
 		}
-		int directionId = gTrip.direction_id;
-		String stationName = cleanTripHeadsign(gTrip.trip_headsign);
-		mTrip.setHeadsignString(stationName, directionId);
 		System.out.println("Unexpected trip " + gTrip);
 		System.exit(-1);
 	}
