@@ -73,7 +73,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		return Long.parseLong(gRoute.route_short_name); // using route short name as route ID
+		return Long.parseLong(gRoute.getRouteShortName()); // using route short name as route ID
 	}
 
 	private static final String SHEPPARD = "Sheppard";
@@ -83,7 +83,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
-		int rsn = Integer.parseInt(gRoute.route_short_name);
+		int rsn = Integer.parseInt(gRoute.getRouteShortName());
 		switch (rsn) {
 		// @formatter:off
 		case 1: return YONGE_UNIVERSITY;
@@ -112,7 +112,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		int rsn = Integer.parseInt(gRoute.route_short_name);
+		int rsn = Integer.parseInt(gRoute.getRouteShortName());
 		switch (rsn) {
 		// @formatter:off
 		case 1: return COLOR_FFC41E;
@@ -138,34 +138,34 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
 		if (mRoute.id == 1l) {
-			if (gTrip.direction_id == 0) {
+			if (gTrip.getDirectionId() == 0) {
 				mTrip.setHeadsignString(DOWNSVIEW, 0);
 				return;
-			} else if (gTrip.direction_id == 1) {
+			} else if (gTrip.getDirectionId() == 1) {
 				mTrip.setHeadsignString(FINCH, 1);
 				return;
 			}
 		} else if (mRoute.id == 2l) {
-			if (gTrip.direction_id == 0) {
+			if (gTrip.getDirectionId() == 0) {
 				mTrip.setHeadsignString(KENNEDY, 0);
 				return;
-			} else if (gTrip.direction_id == 1) {
+			} else if (gTrip.getDirectionId() == 1) {
 				mTrip.setHeadsignString(KIPLING, 1);
 				return;
 			}
 		} else if (mRoute.id == 3l) {
-			if (gTrip.direction_id == 0) {
+			if (gTrip.getDirectionId() == 0) {
 				mTrip.setHeadsignString(KENNEDY, 0);
 				return;
-			} else if (gTrip.direction_id == 1) {
+			} else if (gTrip.getDirectionId() == 1) {
 				mTrip.setHeadsignString(MC_COWAN, 1);
 				return;
 			}
 		} else if (mRoute.id == 4l) {
-			if (gTrip.direction_id == 0) {
+			if (gTrip.getDirectionId() == 0) {
 				mTrip.setHeadsignString(DON_MILLS, 0);
 				return;
-			} else if (gTrip.direction_id == 1) {
+			} else if (gTrip.getDirectionId() == 1) {
 				mTrip.setHeadsignString(SHEPPARD_YONGE, 1);
 				return;
 			}
