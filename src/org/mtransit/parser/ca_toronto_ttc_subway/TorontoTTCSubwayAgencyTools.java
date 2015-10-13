@@ -1,19 +1,29 @@
 package org.mtransit.parser.ca_toronto_ttc_subway;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
+import org.mtransit.parser.Pair;
+import org.mtransit.parser.SplitUtils;
 import org.mtransit.parser.Utils;
+import org.mtransit.parser.SplitUtils.RouteTripSpec;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GSpec;
+import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.gtfs.data.GTrip;
+import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
 import org.mtransit.parser.mt.data.MRoute;
+import org.mtransit.parser.mt.data.MTripStop;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.mt.data.MTrip;
 
@@ -76,26 +86,15 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		return Long.parseLong(gRoute.getRouteShortName()); // using route short name as route ID
 	}
 
-	private static final String SHEPPARD = "Sheppard";
-	private static final String SCARBOROUGH = "Scarborough";
-	private static final String BLOOR_DANFORTH = "Bloor-Danforth";
-	private static final String YONGE_UNIVERSITY = "Yonge-University";
+	private static final Pattern EXTRACT_RLN = Pattern.compile("(line [0-9]{1} \\(([^\\)]*)\\))", Pattern.CASE_INSENSITIVE);
+	private static final String EXTRACT_RLN_REPLACEMENT = "$2";
 
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
-		int rsn = Integer.parseInt(gRoute.getRouteShortName());
-		switch (rsn) {
-		// @formatter:off
-		case 1: return YONGE_UNIVERSITY;
-		case 2: return BLOOR_DANFORTH;
-		case 3: return SCARBOROUGH;
-		case 4: return SHEPPARD;
-		// @formatter:on
-		default:
-			System.out.println("Unexpected route long name " + gRoute);
-			System.exit(-1);
-			return null;
-		}
+		String routeLongName = gRoute.getRouteLongName();
+		routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
+		routeLongName = EXTRACT_RLN.matcher(routeLongName).replaceAll(EXTRACT_RLN_REPLACEMENT);
+		return CleanUtils.cleanLabel(routeLongName);
 	}
 
 	private static final String AGENCY_COLOR = "B80000"; // RED (AGENCY WEB SITE CSS)
@@ -121,7 +120,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		case 4: return COLOR_8B1962;
 		// @formatter:on
 		default:
-			System.out.println("Unexpected route color " + gRoute);
+			System.out.printf("\nUnexpected route color %s!\n", gRoute);
 			System.exit(-1);
 			return null;
 		}
@@ -135,42 +134,92 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final String MC_COWAN = "McCowan";
 	private static final String KENNEDY = "Kennedy";
 
+	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
+	static {
+		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
+		map2.put(1l, new RouteTripSpec(1l, //
+				0, MTrip.HEADSIGN_TYPE_STRING, DOWNSVIEW, //
+				1, MTrip.HEADSIGN_TYPE_STRING, FINCH) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"14404", "14409", "14410", //
+								"13143", //
+								"14411", "14420", "14429", //
+								"13768", //
+								"14430", "14434", "14435" //
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"14436", "14437", "14440", "14441", //
+								"13768", //
+								"14442", "14445", "14448", "14451", "14454", "14457", "14460", //
+								"13143", //
+								"14461", "14462", "14463", //
+								"15144", //
+								"14464", "14467" //
+						})) //
+				.compileBothTripSort());
+		map2.put(
+				2l,
+				new RouteTripSpec(2l, //
+						0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
+						1, MTrip.HEADSIGN_TYPE_STRING, KIPLING) //
+						.addTripSort(0, //
+								Arrays.asList(new String[] { "14468", "14491", "14492", "14498" })) //
+						.addTripSort(
+								1, //
+								Arrays.asList(new String[] { "14499", "14503", "14506", "14509", "14512", "14514", "14517", "14518", "14520", "14522", "14525",
+										"14526", "14529" })) //
+						.compileBothTripSort());
+		map2.put(3l, new RouteTripSpec(3l, //
+				0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
+				1, MTrip.HEADSIGN_TYPE_STRING, MC_COWAN) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { "14541", "14543", "14546" })) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { "14547", "14549", "14552" })) //
+				.compileBothTripSort());
+		map2.put(4l, new RouteTripSpec(4l, //
+				0, MTrip.HEADSIGN_TYPE_STRING, DON_MILLS, //
+				1, MTrip.HEADSIGN_TYPE_STRING, SHEPPARD_YONGE) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { "14530", "14531", "14532", "14533", "14534" })) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { "14535", "14537", "14539" })) //
+				.compileBothTripSort());
+		ALL_ROUTE_TRIPS2 = map2;
+	}
+
+	@Override
+	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
+			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+		}
+		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+	}
+
+	@Override
+	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
+			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
+		}
+		return super.splitTrip(mRoute, gTrip, gtfs);
+	}
+
+	@Override
+	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()));
+		}
+		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
+	}
+
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
-		if (mRoute.id == 1l) {
-			if (gTrip.getDirectionId() == 0) {
-				mTrip.setHeadsignString(DOWNSVIEW, 0);
-				return;
-			} else if (gTrip.getDirectionId() == 1) {
-				mTrip.setHeadsignString(FINCH, 1);
-				return;
-			}
-		} else if (mRoute.id == 2l) {
-			if (gTrip.getDirectionId() == 0) {
-				mTrip.setHeadsignString(KENNEDY, 0);
-				return;
-			} else if (gTrip.getDirectionId() == 1) {
-				mTrip.setHeadsignString(KIPLING, 1);
-				return;
-			}
-		} else if (mRoute.id == 3l) {
-			if (gTrip.getDirectionId() == 0) {
-				mTrip.setHeadsignString(KENNEDY, 0);
-				return;
-			} else if (gTrip.getDirectionId() == 1) {
-				mTrip.setHeadsignString(MC_COWAN, 1);
-				return;
-			}
-		} else if (mRoute.id == 4l) {
-			if (gTrip.getDirectionId() == 0) {
-				mTrip.setHeadsignString(DON_MILLS, 0);
-				return;
-			} else if (gTrip.getDirectionId() == 1) {
-				mTrip.setHeadsignString(SHEPPARD_YONGE, 1);
-				return;
-			}
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
+			return; // split
 		}
-		System.out.println("Unexpected trip " + gTrip);
+		System.out.printf("\nUnexpected trip %s!", gTrip);
 		System.exit(-1);
 	}
 
@@ -180,9 +229,6 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
-
-	private static final Pattern AT = Pattern.compile("( at )", Pattern.CASE_INSENSITIVE);
-	private static final String AT_REPLACEMENT = " / ";
 
 	private static final Pattern PLATFORM = Pattern.compile("(^|\\s){1}(platform)($|\\s){1}", Pattern.CASE_INSENSITIVE);
 	private static final String PLATFORM_REPLACEMENT = " ";
@@ -206,7 +252,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String cleanStopName(String gStopName) {
 		gStopName = gStopName.toLowerCase(Locale.ENGLISH);
-		gStopName = AT.matcher(gStopName).replaceAll(AT_REPLACEMENT);
+		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
 		gStopName = BOUND.matcher(gStopName).replaceAll(BOUND_REPLACEMENT);
 		gStopName = CENTER.matcher(gStopName).replaceAll(CENTER_REPLACEMENT);
 		gStopName = PLATFORM.matcher(gStopName).replaceAll(PLATFORM_REPLACEMENT);
