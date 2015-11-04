@@ -265,6 +265,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		if (gStopName.trim().endsWith(DASH)) {
 			gStopName = gStopName.substring(0, gStopName.trim().length() - 1);
 		}
+		gStopName = CleanUtils.removePoints(gStopName);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
 		return CleanUtils.cleanLabel(gStopName);
