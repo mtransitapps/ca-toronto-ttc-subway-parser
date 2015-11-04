@@ -225,8 +225,11 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
-		tripHeadsign = CleanUtils.cleanNumbers(tripHeadsign);
+		tripHeadsign = tripHeadsign.toLowerCase(Locale.ENGLISH);
+		tripHeadsign = CleanUtils.CLEAN_AT.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
+		tripHeadsign = CleanUtils.CLEAN_AND.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
+		tripHeadsign = CleanUtils.cleanNumbers(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
