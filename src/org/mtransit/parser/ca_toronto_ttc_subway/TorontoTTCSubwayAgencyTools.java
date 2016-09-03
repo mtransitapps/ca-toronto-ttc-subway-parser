@@ -145,13 +145,18 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 						"14404", "14409", "14410", //
 								"13143", //
 								"14411", "14420", "14429", //
-								"13768", //
-								"14430", "14434", "14435" //
+								"14430", //
+								"14432", //
+								"15380", //
+								"14433", //
+								"14434", "14435" //
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
-						"14436", "14437", "14440", "14441", //
-								"13768", //
+						"14436", "14437", "14438", //
+								"15380", //
+								"14439", //
+								"14440", "14441", //
 								"14442", "14445", "14448", "14451", "14454", "14457", "14460", //
 								"13143", //
 								"14461", "14462", "14463", //
@@ -219,7 +224,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
-		System.out.printf("\nUnexpected trip %s!", gTrip);
+		System.out.printf("\nUnexpected trip %s!\n", gTrip);
 		System.exit(-1);
 	}
 
