@@ -142,26 +142,37 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 				1, MTrip.HEADSIGN_TYPE_STRING, FINCH) //
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
-						"14404", "14409", "14410", //
-								"13143", //
-								"14411", "14420", "14429", //
-								"14430", //
-								"14432", //
-								"15380", //
-								"14433", //
-								"14434", "14435" //
+						"14404", // FINCH STATION - SOUTHBOUND PLATFORM
+								"14409", // EGLINTON STATION - SOUTHBOUND PLATFORM
+								"14410", // !=
+								"13143", // !=
+								"14411", // ==
+								"14420", // UNION STATION - NORTHBOUND PLATFORM towards DOWNSVIEW"
+								"14429", // ==
+								"13768", // != "ST. CLAIR W POCKET"
+								"14430", // !=
+								"14434", // WILSON STATION - NORTHBOUND PLATFORM
+								"14435" // DOWNSVIEW STATION - SUBWAY PLATFORM
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
-						"14436", "14437", "14438", //
-								"15380", //
-								"14439", //
-								"14440", "14441", //
-								"14442", "14445", "14448", "14451", "14454", "14457", "14460", //
-								"13143", //
-								"14461", "14462", "14463", //
-								"15144", //
-								"14464", "14467" //
+						"14436", // DOWNSVIEW STATION - SOUTHBOUND PLATFORM
+								"14437", // WILSON STATION - SOUTHBOUND PLATFORM
+								"14440", // GLENCAIRN STATION - SOUTHBOUND PLATFORM
+								"14441", // !=
+								"13768", // != "ST. CLAIR W POCKET"
+								"14442", // == ST CLAIR WEST STATION - SOUTHBOUND PLATFORM
+								"14445", // ST GEORGE STATION - SOUTHBOUND PLATFORM
+								"14448", // ST PATRICK STATION - SOUTHBOUND PLATFORM
+								"14451", // UNION STATION - NORTHBOUND PLATFORM towards FINCH
+								"14454", // DUNDAS STATION - NORTHBOUND PLATFORM
+								"14457", // BLOOR STATION - NORTHBOUND PLATFORM
+								"14460", // != ST CLAIR STATION - NORTHBOUND PLATFORM
+								"13143", // != DAVIS BUILD-UP
+								"14461", // ==
+								"15144", // YORK MILLS POCKET
+								"14464", // YORK MILLS STATION - NORTHBOUND PLATFORM
+								"14467" // FINCH STATION - SUBWAY PLATFORM
 						})) //
 				.compileBothTripSort());
 		map2.put(
