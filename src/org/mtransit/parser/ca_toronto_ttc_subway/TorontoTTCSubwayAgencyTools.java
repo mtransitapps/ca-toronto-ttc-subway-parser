@@ -41,6 +41,11 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		new TorontoTTCSubwayAgencyTools().start(args);
 	}
 
+	@Override
+	public int getThreadPoolSize() {
+		return 4;
+	}
+
 	private HashSet<String> serviceIds;
 
 	@Override
@@ -74,6 +79,11 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 			return excludeUselessTrip(gTrip, this.serviceIds);
 		}
 		return super.excludeTrip(gTrip);
+	}
+
+	@Override
+	public boolean excludeRoute(GRoute gRoute) {
+		return super.excludeRoute(gRoute);
 	}
 
 	@Override
@@ -144,25 +154,24 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 						Arrays.asList(new String[] { //
 						"14404", // FINCH STATION - SOUTHBOUND PLATFORM
 								"14409", // == EGLINTON STATION - SOUTHBOUND PLATFORM
-								"14410", // !=
-								"13143", // != DAVIS BUILD-UP
-								"14411", // ==
-								"14420", // UNION STATION - NORTHBOUND PLATFORM towards DOWNSVIEW"
+								"14410", // != DAVISVILLE STATION - SOUTHBOUND PLATFORM
+								"14411", // == ST CLAIR STATION - SOUTHBOUND PLATFORM
+								"14420", // ++ UNION STATION - NORTHBOUND PLATFORM towards DOWNSVIEW"
 								"14429", // ==
 								"14430", // !=
-								"14431", // ==
-								"15380", // != LAWRENCE WEST CENTRE POCKET
+								"14431", // == GLENCAIRN STATION - NORTHBOUND PLATFORM
 								"14432", // !=
 								"14434", // WILSON STATION - NORTHBOUND PLATFORM
-								"14435" // DOWNSVIEW STATION - SUBWAY PLATFORM
+								"14435", // DOWNSVIEW STATION - SUBWAY PLATFORM
+								"15702", // VAUGHAN METROPOLITAN CENTRE STATION - NORTHBOUND PLATFORM
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
-						"14436", // DOWNSVIEW STATION - SOUTHBOUND PLATFORM
+						"15703", // VAUGHAN METROPOLITAN CENTRE STATION - SOUTHBOUND PLATFORM
+								"14436", // DOWNSVIEW STATION - SOUTHBOUND PLATFORM
 								"14437", // WILSON STATION - SOUTHBOUND PLATFORM
 								"14438", // ==
-								"15380", // != LAWRENCE WEST CENTRE POCKET
-								"14439", // ==
+								"14439", // == LAWRENCE WEST STATION - SOUTHBOUND PLATFORM
 								"14440", // == GLENCAIRN STATION - SOUTHBOUND PLATFORM
 								"14441", // ==
 								"14442", // == ST CLAIR WEST STATION - SOUTHBOUND PLATFORM
@@ -172,41 +181,45 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 								"14454", // DUNDAS STATION - NORTHBOUND PLATFORM
 								"14457", // BLOOR STATION - NORTHBOUND PLATFORM
 								"14460", // == ST CLAIR STATION - NORTHBOUND PLATFORM
-								"13143", // != DAVIS BUILD-UP
-								"14461", // ==
-								"14463", // ==
-								"15144", // != YORK MILLS POCKET
+								"14461", // == DAVISVILLE STATION - NORTHBOUND PLATFORM
+								"14463", // == LAWRENCE STATION - NORTHBOUND PLATFORM
 								"14464", // != YORK MILLS STATION - NORTHBOUND PLATFORM
-								"14467" // == FINCH STATION - SUBWAY PLATFORM
+								"14467", // == FINCH STATION - SUBWAY PLATFORM
 						})) //
 				.compileBothTripSort());
-		map2.put(
-				2l,
-				new RouteTripSpec(2l, //
-						0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
-						1, MTrip.HEADSIGN_TYPE_STRING, KIPLING) //
-						.addTripSort(0, //
-								Arrays.asList(new String[] { "14468", "14491", "14492", "14498" })) //
-						.addTripSort(
-								1, //
-								Arrays.asList(new String[] { "14499", "14503", "14506", "14509", "14512", "14514", "14517", "14518", "14520", "14522", "14525",
-										"14526", "14529" })) //
-						.compileBothTripSort());
+		map2.put(2l, new RouteTripSpec(2l, //
+				0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
+				1, MTrip.HEADSIGN_TYPE_STRING, KIPLING) //
+				.addTripSort(0, Arrays.asList(new String[] { //
+						"14468", "14491", "14492", "14498" //
+						})) //
+				.addTripSort(1, Arrays.asList(new String[] { //
+						"14499", "14503", "14506", "14509", "14512", "14514", "14517", "14518", "14520", "14522", "14525", "14526", "14529" //
+						})) //
+				.compileBothTripSort());
 		map2.put(3l, new RouteTripSpec(3l, //
 				0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
 				1, MTrip.HEADSIGN_TYPE_STRING, MC_COWAN) //
 				.addTripSort(0, //
-						Arrays.asList(new String[] { "14541", "14543", "14546" })) //
+						Arrays.asList(new String[] { //
+						"14541", "14543", "14546" //
+						})) //
 				.addTripSort(1, //
-						Arrays.asList(new String[] { "14547", "14549", "14552" })) //
+						Arrays.asList(new String[] { //
+						"14547", "14549", "14552" //
+						})) //
 				.compileBothTripSort());
 		map2.put(4l, new RouteTripSpec(4l, //
 				0, MTrip.HEADSIGN_TYPE_STRING, DON_MILLS, //
 				1, MTrip.HEADSIGN_TYPE_STRING, SHEPPARD_YONGE) //
 				.addTripSort(0, //
-						Arrays.asList(new String[] { "14530", "14531", "14532", "14533", "14534" })) //
+						Arrays.asList(new String[] { //
+						"14530", "14531", "14532", "14533", "14534" //
+						})) //
 				.addTripSort(1, //
-						Arrays.asList(new String[] { "14535", "14537", "14539" })) //
+						Arrays.asList(new String[] { //
+						"14535", "14537", "14539" //
+						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
 	}
@@ -242,6 +255,13 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		}
 		System.out.printf("\nUnexpected trip %s!\n", gTrip);
 		System.exit(-1);
+	}
+
+	@Override
+	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+		System.out.printf("\nUnexpected trips to merge %s and %s.\n", mTrip, mTripToMerge);
+		System.exit(-1);
+		return false;
 	}
 
 	@Override
