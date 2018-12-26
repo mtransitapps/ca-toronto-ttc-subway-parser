@@ -289,7 +289,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final Pattern SUBWAY = Pattern.compile("(^|\\s){1}(subway)($|\\s){1}", Pattern.CASE_INSENSITIVE);
 	private static final String SUBWAY_REPLACEMENT = " ";
 
-	private static final Pattern BOUND = Pattern.compile("(^|\\s){1}(eastbound|westbound|northbound|southbound)($|\\s){1}", Pattern.CASE_INSENSITIVE);
+	private static final Pattern BOUND = Pattern.compile("(^|\\s){1}(eastbound|eb|westbound|wb|northbound|nb|southbound|sb)($|\\s){1}", Pattern.CASE_INSENSITIVE);
 	private static final String BOUND_REPLACEMENT = " ";
 
 	private static final Pattern CENTER = Pattern.compile("(cent(er|re))", Pattern.CASE_INSENSITIVE);
