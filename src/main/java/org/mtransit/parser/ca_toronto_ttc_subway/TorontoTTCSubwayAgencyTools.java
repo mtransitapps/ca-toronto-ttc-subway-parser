@@ -27,8 +27,9 @@ import org.mtransit.parser.mt.data.MTripStop;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.mt.data.MTrip;
 
-// http://www1.toronto.ca/wps/portal/contentonly?vgnextoid=96f236899e02b210VgnVCM1000003dd60f89RCRD
-// http://opendata.toronto.ca/TTC/routes/OpenData_TTC_Schedules.zip
+// https://open.toronto.ca/dataset/ttc-routes-and-schedules/
+// OLD: http://opendata.toronto.ca/TTC/routes/OpenData_TTC_Schedules.zip
+// http://opendata.toronto.ca/toronto.transit.commission/ttc-routes-and-schedules/OpenData_TTC_Schedules.zip
 public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
