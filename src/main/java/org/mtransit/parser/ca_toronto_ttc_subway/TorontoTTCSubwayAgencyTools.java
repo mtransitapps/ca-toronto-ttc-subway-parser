@@ -1,19 +1,15 @@
 package org.mtransit.parser.ca_toronto_ttc_subway;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mtransit.parser.CleanUtils;
+import org.mtransit.parser.Constants;
 import org.mtransit.parser.DefaultAgencyTools;
+import org.mtransit.parser.MTLog;
 import org.mtransit.parser.Pair;
 import org.mtransit.parser.SplitUtils;
-import org.mtransit.parser.Utils;
 import org.mtransit.parser.SplitUtils.RouteTripSpec;
+import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
@@ -23,16 +19,22 @@ import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
 import org.mtransit.parser.mt.data.MRoute;
-import org.mtransit.parser.mt.data.MTripStop;
-import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.mt.data.MTrip;
+import org.mtransit.parser.mt.data.MTripStop;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 // https://open.toronto.ca/dataset/ttc-routes-and-schedules/
 // OLD: http://opendata.toronto.ca/TTC/routes/OpenData_TTC_Schedules.zip
 // http://opendata.toronto.ca/toronto.transit.commission/ttc-routes-and-schedules/OpenData_TTC_Schedules.zip
 public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
-	public static void main(String[] args) {
+	public static void main(@Nullable String[] args) {
 		if (args == null || args.length == 0) {
 			args = new String[3];
 			args[0] = "input/gtfs.zip";
@@ -42,20 +44,16 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		new TorontoTTCSubwayAgencyTools().start(args);
 	}
 
-	@Override
-	public int getThreadPoolSize() {
-		return 4;
-	}
-
+	@Nullable
 	private HashSet<String> serviceIds;
 
 	@Override
-	public void start(String[] args) {
-		System.out.printf("\nGenerating TTC subway data...");
+	public void start(@NotNull String[] args) {
+		MTLog.log("Generating TTC subway data...");
 		long start = System.currentTimeMillis();
 		this.serviceIds = extractUsefulServiceIds(args, this);
 		super.start(args);
-		System.out.printf("\nGenerating TTC subway data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+		MTLog.log("Generating TTC subway data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
@@ -64,7 +62,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean excludeCalendar(GCalendar gCalendar) {
+	public boolean excludeCalendar(@NotNull GCalendar gCalendar) {
 		if (this.serviceIds != null) {
 			return excludeUselessCalendar(gCalendar, this.serviceIds);
 		}
@@ -72,7 +70,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean excludeCalendarDate(GCalendarDate gCalendarDates) {
+	public boolean excludeCalendarDate(@NotNull GCalendarDate gCalendarDates) {
 		if (this.serviceIds != null) {
 			return excludeUselessCalendarDate(gCalendarDates, this.serviceIds);
 		}
@@ -80,7 +78,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean excludeTrip(GTrip gTrip) {
+	public boolean excludeTrip(@NotNull GTrip gTrip) {
 		if (this.serviceIds != null) {
 			return excludeUselessTrip(gTrip, this.serviceIds);
 		}
@@ -88,25 +86,27 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public boolean excludeRoute(GRoute gRoute) {
+	public boolean excludeRoute(@NotNull GRoute gRoute) {
 		return super.excludeRoute(gRoute);
 	}
 
+	@NotNull
 	@Override
 	public Integer getAgencyRouteType() {
 		return MAgency.ROUTE_TYPE_SUBWAY;
 	}
 
 	@Override
-	public long getRouteId(GRoute gRoute) {
+	public long getRouteId(@NotNull GRoute gRoute) {
 		return Long.parseLong(gRoute.getRouteShortName()); // using route short name as route ID
 	}
 
-	private static final Pattern EXTRACT_RLN = Pattern.compile("(line [0-9]{1} \\(([^\\)]*)\\))", Pattern.CASE_INSENSITIVE);
+	private static final Pattern EXTRACT_RLN = Pattern.compile("(line [0-9] \\(([^)]*)\\))", Pattern.CASE_INSENSITIVE);
 	private static final String EXTRACT_RLN_REPLACEMENT = "$2";
 
+	@NotNull
 	@Override
-	public String getRouteLongName(GRoute gRoute) {
+	public String getRouteLongName(@NotNull GRoute gRoute) {
 		String routeLongName = gRoute.getRouteLongName();
 		routeLongName = routeLongName.toLowerCase(Locale.ENGLISH);
 		routeLongName = EXTRACT_RLN.matcher(routeLongName).replaceAll(EXTRACT_RLN_REPLACEMENT);
@@ -115,6 +115,7 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 
 	private static final String AGENCY_COLOR = "B80000"; // RED (AGENCY WEB SITE CSS)
 
+	@NotNull
 	@Override
 	public String getAgencyColor() {
 		return AGENCY_COLOR;
@@ -125,8 +126,9 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	private static final String COLOR_0A6797 = "0A6797"; // 3 - Blue (web site CSS)
 	private static final String COLOR_8B1962 = "8B1962"; // 4 - Violet (web site CSS)
 
+	@Nullable
 	@Override
-	public String getRouteColor(GRoute gRoute) {
+	public String getRouteColor(@NotNull GRoute gRoute) {
 		int rsn = Integer.parseInt(gRoute.getRouteShortName());
 		switch (rsn) {
 		// @formatter:off
@@ -136,120 +138,38 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		case 4: return COLOR_8B1962;
 		// @formatter:on
 		default:
-			System.out.printf("\nUnexpected route color %s!\n", gRoute);
-			System.exit(-1);
-			return null;
+			throw new MTLog.Fatal("Unexpected route color %s!", gRoute);
 		}
 	}
 
-	private static final String SHEPPARD_YONGE = "Sheppard-Yonge";
-	private static final String DON_MILLS = "Don Mills";
-	private static final String KIPLING = "Kipling";
-	private static final String FINCH = "Finch";
-	private static final String DOWNSVIEW = "Downsview";
-	private static final String MC_COWAN = "McCowan";
-	private static final String KENNEDY = "Kennedy";
+	private static final HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 
-	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
-		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
-		map2.put(1L, new RouteTripSpec(1L, //
-				0, MTrip.HEADSIGN_TYPE_STRING, DOWNSVIEW, //
-				1, MTrip.HEADSIGN_TYPE_STRING, FINCH) //
-				.addTripSort(0, //
-						Arrays.asList(new String[] { //
-						"14404", // FINCH STATION - SOUTHBOUND PLATFORM
-								"14409", // == EGLINTON STATION - SOUTHBOUND PLATFORM
-								"14410", // != DAVISVILLE STATION - SOUTHBOUND PLATFORM
-								"14411", // == ST CLAIR STATION - SOUTHBOUND PLATFORM
-								"14420", // ++ UNION STATION - NORTHBOUND PLATFORM towards DOWNSVIEW"
-								"14429", // ==
-								"14430", // !=
-								"14431", // == GLENCAIRN STATION - NORTHBOUND PLATFORM
-								"14432", // !=
-								"14434", // WILSON STATION - NORTHBOUND PLATFORM
-								"14435", // DOWNSVIEW STATION - SUBWAY PLATFORM
-								"15702", // VAUGHAN METROPOLITAN CENTRE STATION - NORTHBOUND PLATFORM
-						})) //
-				.addTripSort(1, //
-						Arrays.asList(new String[] { //
-						"15703", // VAUGHAN METROPOLITAN CENTRE STATION - SOUTHBOUND PLATFORM
-								"15697", // FINCH WEST STATION - SOUTHBOUND PLATFORM
-								"14436", // DOWNSVIEW STATION - SOUTHBOUND PLATFORM
-								"14437", // WILSON STATION - SOUTHBOUND PLATFORM
-								"14438", // ==
-								"14439", // == LAWRENCE WEST STATION - SOUTHBOUND PLATFORM
-								"14440", // == GLENCAIRN STATION - SOUTHBOUND PLATFORM
-								"14441", // ==
-								"14442", // == ST CLAIR WEST STATION - SOUTHBOUND PLATFORM
-								"14445", // ST GEORGE STATION - SOUTHBOUND PLATFORM
-								"14448", // ST PATRICK STATION - SOUTHBOUND PLATFORM
-								"14451", // UNION STATION - NORTHBOUND PLATFORM towards FINCH
-								"14454", // DUNDAS STATION - NORTHBOUND PLATFORM
-								"14457", // BLOOR STATION - NORTHBOUND PLATFORM
-								"14460", // == ST CLAIR STATION - NORTHBOUND PLATFORM
-								"14461", // == DAVISVILLE STATION - NORTHBOUND PLATFORM
-								"14462", // EGLINTON STATION - NORTHBOUND PLATFORM
-								"14463", // == LAWRENCE STATION - NORTHBOUND PLATFORM
-								"14464", // != YORK MILLS STATION - NORTHBOUND PLATFORM
-								"14467", // == FINCH STATION - SUBWAY PLATFORM
-						})) //
-				.compileBothTripSort());
-		map2.put(2l, new RouteTripSpec(2l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
-				1, MTrip.HEADSIGN_TYPE_STRING, KIPLING) //
-				.addTripSort(0, Arrays.asList(new String[] { //
-						"14468", "14491", "14492", "14498" //
-						})) //
-				.addTripSort(1, Arrays.asList(new String[] { //
-						"14499", "14503", "14506", "14509", "14512", "14514", "14517", "14518", "14520", "14522", "14525", "14526", "14529" //
-						})) //
-				.compileBothTripSort());
-		map2.put(3l, new RouteTripSpec(3l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, KENNEDY, //
-				1, MTrip.HEADSIGN_TYPE_STRING, MC_COWAN) //
-				.addTripSort(0, //
-						Arrays.asList(new String[] { //
-						"14541", "14543", "14546" //
-						})) //
-				.addTripSort(1, //
-						Arrays.asList(new String[] { //
-						"14547", "14549", "14552" //
-						})) //
-				.compileBothTripSort());
-		map2.put(4l, new RouteTripSpec(4l, //
-				0, MTrip.HEADSIGN_TYPE_STRING, DON_MILLS, //
-				1, MTrip.HEADSIGN_TYPE_STRING, SHEPPARD_YONGE) //
-				.addTripSort(0, //
-						Arrays.asList(new String[] { //
-						"14530", "14531", "14532", "14533", "14534" //
-						})) //
-				.addTripSort(1, //
-						Arrays.asList(new String[] { //
-						"14535", "14537", "14539" //
-						})) //
-				.compileBothTripSort());
+		//noinspection UnnecessaryLocalVariable
+		HashMap<Long, RouteTripSpec> map2 = new HashMap<>();
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
 	@Override
-	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+	public int compareEarly(long routeId, @NotNull List<MTripStop> list1, @NotNull List<MTripStop> list2, @NotNull MTripStop ts1, @NotNull MTripStop ts2, @NotNull GStop ts1GStop, @NotNull GStop ts2GStop) {
 		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
 			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop, this);
 		}
 		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
 	}
 
+	@NotNull
 	@Override
-	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
+	public ArrayList<MTrip> splitTrip(@NotNull MRoute mRoute, @Nullable GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
 		}
 		return super.splitTrip(mRoute, gTrip, gtfs);
 	}
 
+	@NotNull
 	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
+	public Pair<Long[], Integer[]> splitTripStop(@NotNull MRoute mRoute, @NotNull GTrip gTrip, @NotNull GTripStop gTripStop, @NotNull ArrayList<MTrip> splitTrips, @NotNull GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()), this);
 		}
@@ -257,24 +177,37 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
+	public void setTripHeadsign(@NotNull MRoute mRoute, @NotNull MTrip mTrip, @NotNull GTrip gTrip, @NotNull GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
-		System.out.printf("\nUnexpected trip %s!\n", gTrip);
-		System.exit(-1);
+		mTrip.setHeadsignString(
+				cleanTripHeadsign(gTrip.getTripHeadsignOrDefault()),
+				gTrip.getDirectionIdOrDefault()
+		);
 	}
 
 	@Override
-	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
-		System.out.printf("\nUnexpected trips to merge %s and %s.\n", mTrip, mTripToMerge);
-		System.exit(-1);
-		return false;
+	public boolean directionFinderEnabled() {
+		return true;
 	}
 
 	@Override
-	public String cleanTripHeadsign(String tripHeadsign) {
-		tripHeadsign = tripHeadsign.toLowerCase(Locale.ENGLISH);
+	public boolean mergeHeadsign(@NotNull MTrip mTrip, @NotNull MTrip mTripToMerge) {
+		throw new MTLog.Fatal("%s: Using direction finder to merge %s and %s!", mTrip.getRouteId(), mTrip, mTripToMerge);
+	}
+
+	private static final Pattern STARTS_WITH_TOWARDS_ = Pattern.compile("((^|^.* )towards )", Pattern.CASE_INSENSITIVE);
+
+	@NotNull
+	@Override
+	public String cleanTripHeadsign(@NotNull String tripHeadsign) {
+		tripHeadsign = STARTS_WITH_TOWARDS_.matcher(tripHeadsign).replaceAll(Constants.EMPTY);
+		if (Utils.isUppercaseOnly(tripHeadsign, true, true)) {
+			tripHeadsign = tripHeadsign.toLowerCase(Locale.ENGLISH);
+		}
+		tripHeadsign = STATION.matcher(tripHeadsign).replaceAll(STATION_REPLACEMENT);
+		tripHeadsign = CleanUtils.fixMcXCase(tripHeadsign);
 		tripHeadsign = CleanUtils.CLEAN_AT.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
 		tripHeadsign = CleanUtils.CLEAN_AND.matcher(tripHeadsign).replaceAll(CleanUtils.CLEAN_AND_REPLACEMENT);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
@@ -282,39 +215,41 @@ public class TorontoTTCSubwayAgencyTools extends DefaultAgencyTools {
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
-	private static final Pattern PLATFORM = Pattern.compile("(^|\\s){1}(platform)($|\\s){1}", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PLATFORM = Pattern.compile("(^|\\s)(platform)($|\\s)", Pattern.CASE_INSENSITIVE);
 	private static final String PLATFORM_REPLACEMENT = " ";
 
-	private static final Pattern STATION = Pattern.compile("(^|\\s){1}(station)($|\\s){1}", Pattern.CASE_INSENSITIVE);
+	private static final Pattern STATION = Pattern.compile("(^|\\s)(station)($|\\s)", Pattern.CASE_INSENSITIVE);
 	private static final String STATION_REPLACEMENT = " ";
 
-	private static final Pattern SUBWAY = Pattern.compile("(^|\\s){1}(subway)($|\\s){1}", Pattern.CASE_INSENSITIVE);
+	private static final Pattern SUBWAY = Pattern.compile("(^|\\s)(subway)($|\\s)", Pattern.CASE_INSENSITIVE);
 	private static final String SUBWAY_REPLACEMENT = " ";
 
-	private static final Pattern BOUND = Pattern.compile("(^|\\s){1}(eastbound|eb|westbound|wb|northbound|nb|southbound|sb)($|\\s){1}",
+	private static final Pattern BOUND = Pattern.compile("(^|\\s)(eastbound|eb|westbound|wb|northbound|nb|southbound|sb)($|\\s)",
 			Pattern.CASE_INSENSITIVE);
 	private static final String BOUND_REPLACEMENT = " ";
 
 	private static final Pattern CENTER = Pattern.compile("(cent(er|re))", Pattern.CASE_INSENSITIVE);
 	private static final String CENTER_REPLACEMENT = "Ctr";
 
-	private static final String DASH = "-";
+	private static final Pattern ENDS_WITH_DASH_ = Pattern.compile("(( )?-( )?$)", Pattern.CASE_INSENSITIVE);
 
-	private static final Pattern TOWARDS = Pattern.compile("(- towards .*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern ENDS_WITH_TOWARDS_ = Pattern.compile("( towards .*$)", Pattern.CASE_INSENSITIVE);
 
+	@NotNull
 	@Override
-	public String cleanStopName(String gStopName) {
-		gStopName = gStopName.toLowerCase(Locale.ENGLISH);
-		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
+	public String cleanStopName(@NotNull String gStopName) {
+		gStopName = ENDS_WITH_TOWARDS_.matcher(gStopName).replaceAll(Constants.EMPTY);
+		if (Utils.isUppercaseOnly(gStopName, true, true)) {
+			gStopName = gStopName.toLowerCase(Locale.ENGLISH);
+		}
 		gStopName = BOUND.matcher(gStopName).replaceAll(BOUND_REPLACEMENT);
 		gStopName = CENTER.matcher(gStopName).replaceAll(CENTER_REPLACEMENT);
 		gStopName = PLATFORM.matcher(gStopName).replaceAll(PLATFORM_REPLACEMENT);
 		gStopName = STATION.matcher(gStopName).replaceAll(STATION_REPLACEMENT);
 		gStopName = SUBWAY.matcher(gStopName).replaceAll(SUBWAY_REPLACEMENT);
-		gStopName = TOWARDS.matcher(gStopName).replaceAll(StringUtils.EMPTY);
-		if (gStopName.trim().endsWith(DASH)) {
-			gStopName = gStopName.substring(0, gStopName.trim().length() - 1);
-		}
+		gStopName = ENDS_WITH_DASH_.matcher(gStopName).replaceAll(Constants.EMPTY);
+		gStopName = CleanUtils.CLEAN_AT.matcher(gStopName).replaceAll(CleanUtils.CLEAN_AT_REPLACEMENT);
+		gStopName = CleanUtils.fixMcXCase(gStopName);
 		gStopName = CleanUtils.removePoints(gStopName);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
